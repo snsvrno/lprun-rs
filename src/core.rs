@@ -12,7 +12,8 @@ use std::path::PathBuf;
 pub fn run (plat : &Platform, ver : &Version, package_path : Option<PathBuf>) -> Result<(),&'static str> {
   //! runs love based on a ***platform*** and a ***version***
   let mut binary = Binary::new(plat,&ver,None);
-  binary.run();
+
+  binary.run(package_path);
   Ok(())
 }
 
