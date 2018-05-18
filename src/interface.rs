@@ -2,6 +2,7 @@ use clap;
 
 use platform::Platform;
 use version::version::Version;
+use lpsettings;
 use love::project::project;
 
 use std::path::{PathBuf,Path};
@@ -17,13 +18,21 @@ pub fn process(matches : &clap::ArgMatches) -> Result<(),&'static str> {
   //! - runs a version of love
   //! - can use the `-p` or `--platform` switch to force a certain platform
   //! - can use the `-v` or `--version` switch to force a certain version
-  let mut package_path : Option<PathBuf> = None;
 
+  // gets the project path, checks for the variable project.game-folder if the actual game is located
+  // somewhere else
+  let mut package_path : Option<PathBuf> = if let Some(value) = lpsettings::get_value("project.game-folder") {
+    if let Some(mut path) = get_path(&matches) {
+      path.push(value);
+      Some(path) // sets package_path to this
+    } else {
+      let mut temp_path = PathBuf::from(".");
+      temp_path.push(value);
+      Some(temp_path) // sets package_path to this
+    }
+  } else { get_path(&matches) };
   let plat : Platform = get_platform(&matches);
-  let ver : Option<Version> = get_version(&matches);
-  let package_path : Option<PathBuf> = get_path(&matches);
-
-  // gets the project path
+  let ver : Option<Version> = get_version(&matches,&package_path);
 
   if let Some(ref ver) = ver { return core::run(&plat,&ver,package_path); }
   else { return Err("No version to use found"); }
@@ -52,7 +61,7 @@ fn get_path(matches : &clap::ArgMatches) -> Option<PathBuf> {
   }
 }
 
-fn get_version(matches : &clap::ArgMatches) -> Option<Version> {
+fn get_version(matches : &clap::ArgMatches, game_path: &Option<PathBuf>) -> Option<Version> {
   //! gets the version to use
 
   // checks first is CLAP has a version
@@ -67,12 +76,15 @@ fn get_version(matches : &clap::ArgMatches) -> Option<Version> {
   }
 
   // checks the project for version information
-  if let Some(path) = get_path(&matches) {
-    match project::get_required_version(&path) {
-      Err( _ ) => { return None; }
-      Ok(version_override_project) => { return Some(version_override_project); }
+  match game_path {
+    &Some(ref path) => {
+      match project::get_required_version(&path) {
+        Err( _ ) => { return None; }
+        Ok(version_override_project) => { return Some(version_override_project); }
+      }
     }
-  } else { return None; }
+    _ => { None }
+  }
 }
 
 fn get_latest_installed_version() -> Option<Version> { Version::from_str("0.0.0") }
