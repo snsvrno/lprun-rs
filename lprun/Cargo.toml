@@ -1,0 +1,17 @@
+[package]
+name = "lprun"
+version = "0.2.0"
+authors = ["snsvrno <snsvrno@tuta.io>"]
+
+[dependencies]
+clap = "2.32"
+ansi_term = "0.11"
+failure = "0.1"
+log = "0.4"
+
+version-lp = "0.2"
+platform-lp = "0.2"
+download-lp = "0.2"
+archive-lp = "0.2"
+lpsettings = "0.2"
+love = "0.2"

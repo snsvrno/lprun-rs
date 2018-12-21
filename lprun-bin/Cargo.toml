@@ -1,0 +1,12 @@
+[package]
+name = "lprun-bin"
+version = "0.2.0"
+authors = ["snsvrno <snsvrno@tuta.io>"]
+
+[dependencies]
+clap = "2.32"
+log = "0"
+pretty_env_logger = "0.2"
+updater-lp = "0.3"
+
+lprun = { version = "0.2", path = "../lprun" }
