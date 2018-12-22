@@ -7,6 +7,13 @@ extern crate version_lp;
 extern crate archive_lp;
 extern crate download_lp;
 
+extern crate reqwest;
+extern crate serde_json;
+extern crate regex;
+extern crate toml;
+#[macro_use] extern crate serde_derive;
+extern crate serde;
+
 #[macro_use] extern crate log;
 #[macro_use] extern crate failure;
 
@@ -17,3 +24,5 @@ pub use core::run;
 
 mod binary;
 mod repo;
+
+mod structs;

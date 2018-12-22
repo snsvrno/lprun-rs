@@ -10,6 +10,7 @@ use std::path::{PathBuf,Path};
 use failure::Error;
 
 use core;
+use repo;
 
 pub fn process(matches : &clap::ArgMatches) -> Result<(),Error> {
     //! the main process function for ***run***
@@ -55,6 +56,16 @@ pub fn process(matches : &clap::ArgMatches) -> Result<(),Error> {
 }
 
 pub fn process_install(matches : &clap::ArgMatches) -> Result<(),Error> {
+
+    if let Some(list) = matches.subcommand_matches("list") {
+        if list.is_present("list available") {
+
+        }
+    } else if let Some(_) = matches.subcommand_matches("update") {
+        repo::update_local_repo(true)?;
+    }
+
+
     Ok(())
 }
 
@@ -143,7 +154,15 @@ pub fn app() -> clap::App<'static,'static> {
 
     // subcommands
         .subcommand(clap::SubCommand::with_name("install")
-                .about("Installs different versions of LÖVE"))
+                .about("Installs different versions of LÖVE")
+                .subcommand(clap::SubCommand::with_name("list")
+                    .about("Lists installed binaries.")
+                    .arg(clap::Arg::with_name("list available")
+                        .short("a")
+                        .long("list-available")
+                        .help("Lists available binaries.")))
+                .subcommand(clap::SubCommand::with_name("update")
+                    .about("Updates the local repository of LOVE releases.")))
 
     // parameters
         .arg(clap::Arg::with_name("version")
