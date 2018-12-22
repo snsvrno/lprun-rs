@@ -18,7 +18,7 @@ use structs::release::Release;
 
 // linux is the only one that can resolve without getting a full match
 // on platform, these should only be lowercase!
-static VALID_EXT_LINUX : [&str;1] = [ "appimage" ];
+static VALID_EXT_LINUX : [&str;3] = [ "appimage","tar.gz","tar.xz" ];
 static VALID_EXT_WINDOWS : [&str;1] = [ "zip" ];
 static VALID_EXT_MAC : [&str;2] = [ "zip","dmg" ];
 
@@ -153,9 +153,11 @@ fn process_bitbucket(mut repo_obj : &mut HashSet<Release>, url : &str) -> Result
                                 for part in &VALID_EXT_LINUX {
                                     if link.to_lowercase().contains(part) {
                                         if link.to_lowercase().contains("686") || link.to_lowercase().contains("32") {
-                                            platform_guess == Platform::Nix32;
+                                            platform_guess = Platform::Nix32;
+                                            valid = true;
                                         } else if link.to_lowercase().contains("64") {
-                                            platform_guess == Platform::Nix64;
+                                            platform_guess = Platform::Nix64;
+                                            valid = true;
                                         }
                                         break;
                                     }
