@@ -14,6 +14,9 @@ extern crate toml;
 #[macro_use] extern crate serde_derive;
 extern crate serde;
 
+#[macro_use] extern crate smart_hash;
+#[macro_use] extern crate smart_hash_derive;
+
 #[macro_use] extern crate log;
 #[macro_use] extern crate failure;
 

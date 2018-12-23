@@ -7,14 +7,15 @@ use lpsettings;
 use std::path::PathBuf;
 use std::collections::HashSet;
 use std::fs::File;
-use std::io::Write;
+use std::io::{Write,Read};
 
 use reqwest;
 use serde_json;
 use regex::Regex;
 use toml;
 
-use structs::release::Release;
+use structs::release::{ Release, ReleaseExporter };
+use smart_hash::traits::SmartHashSet;
 
 // linux is the only one that can resolve without getting a full match
 // on platform, these should only be lowercase!
@@ -55,13 +56,48 @@ pub fn update_local_repo(forced : bool) -> Result<(),Error> {
         // saves the file.
 
         let mut file = File::create(&repo_path)?;
-        let toml_string = toml::to_string(&releases)?;
 
-        file.write(toml_string.as_bytes())?;
+
+        {
+            let export = ReleaseExporter::from_release(releases);
+            let toml_string = toml::to_string(&export)?;
+            file.write(toml_string.as_bytes())?;
+        }
+
     }
 
     lpsettings::update::set_last_update_as_now("lprun.repo")?;
     
+    Ok(())
+}
+
+pub fn list() -> Result<(),Error> { 
+    Err(format_err!("Not implemented"))
+}
+
+pub fn list_available() -> Result<(),Error> {
+    //! get the list of all remote LOVE binaries that can
+    //! be used, will display all platforms organized.
+    
+    let repo_path = get_repo_path();
+    let mut file = File::open(&repo_path)?;
+    let mut buffer : String = String::new();
+    file.read_to_string(&mut buffer)?;
+    let releases = {
+        let mut export : ReleaseExporter = toml::from_str(&buffer)?;
+        export.to_release()
+    };
+
+    for platform_in_question in Platform::iterator() {
+        if let Some(release_set) = get_matching!(releases,platform == platform_in_question.clone()) {
+            print!("{} ====",platform_in_question);
+            for release in release_set {
+                println!("  {}",release.version);
+            }
+        }
+    }
+
+
     Ok(())
 }
 

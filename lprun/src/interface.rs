@@ -58,8 +58,9 @@ pub fn process(matches : &clap::ArgMatches) -> Result<(),Error> {
 pub fn process_install(matches : &clap::ArgMatches) -> Result<(),Error> {
 
     if let Some(list) = matches.subcommand_matches("list") {
-        if list.is_present("list available") {
-
+        match list.is_present("list available") {
+            true => repo::list_available()?,
+            false => repo::list()?,
         }
     } else if let Some(_) = matches.subcommand_matches("update") {
         repo::update_local_repo(true)?;
