@@ -17,6 +17,18 @@ impl fmt::Display for Release {
     }
 }
 
+impl std::cmp::Ord for Release {
+    fn cmp(&self, other: &Release) -> std::cmp::Ordering {
+        self.version.cmp(&other.version)
+    }
+}
+
+impl std::cmp::PartialOrd for Release {
+    fn partial_cmp(&self, other: &Release) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 /// created this struct because serializing and deserializing 
 /// a HashSet doesn't work.
 #[derive(Hash,Eq,PartialEq,Serialize,Deserialize)]

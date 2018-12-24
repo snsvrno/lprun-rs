@@ -16,6 +16,7 @@ use toml;
 
 use structs::release::{ Release, ReleaseExporter };
 use smart_hash::traits::SmartHashSet;
+use prettytable;
 
 // linux is the only one that can resolve without getting a full match
 // on platform, these should only be lowercase!
@@ -88,15 +89,21 @@ pub fn list_available() -> Result<(),Error> {
         export.to_release()
     };
 
+    let mut headers : prettytable::Row = prettytable::Row::empty();
+    let mut table = prettytable::Table::new();
     for platform_in_question in Platform::iterator() {
-        if let Some(release_set) = get_matching!(releases,platform == platform_in_question.clone()) {
-            print!("{} ====",platform_in_question);
+        if let Some(mut release_set) = get_matching!(releases,platform == platform_in_question.clone()) {
+            headers.add_cell(prettytable::Cell::from(platform_in_question));
+            let mut column : Vec<prettytable::Cell> = Vec::new();
+            release_set.sort();
             for release in release_set {
-                println!("  {}",release.version);
+                column.push(prettytable::Cell::new(&release.version.to_string()));
             }
+            table.add_column(column);
         }
     }
-
+    table.set_titles(headers);
+    table.printstd();
 
     Ok(())
 }
