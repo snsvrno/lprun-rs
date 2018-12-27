@@ -32,7 +32,12 @@ static DEFAULT_LINKS : [&str;2] = [
 ];
 
 pub fn get_version_link(platform : &Platform, version : &Version) -> Result<String,Error> {
-    Err(format_err!("Not Implemented"))    
+    let releases : HashSet<Release> = load_local_repo()?;
+
+    match get_matching!(releases,version == version.clone(), platform == platform.clone()) {
+        None => Err(format_err!("No link found for {}-{}",version,platform)),
+        Some(links) => Ok(links[0].link.to_string()),
+    }
 }
 
 pub fn update_local_repo(forced : bool) -> Result<(),Error> {
@@ -80,14 +85,7 @@ pub fn list_available() -> Result<(),Error> {
     //! get the list of all remote LOVE binaries that can
     //! be used, will display all platforms organized.
     
-    let repo_path = get_repo_path();
-    let mut file = File::open(&repo_path)?;
-    let mut buffer : String = String::new();
-    file.read_to_string(&mut buffer)?;
-    let releases = {
-        let mut export : ReleaseExporter = toml::from_str(&buffer)?;
-        export.to_release()
-    };
+    let releases = load_local_repo()?;
 
     let mut headers : prettytable::Row = prettytable::Row::empty();
     let mut table = prettytable::Table::new();
@@ -106,6 +104,21 @@ pub fn list_available() -> Result<(),Error> {
     table.printstd();
 
     Ok(())
+}
+
+fn load_local_repo() -> Result<HashSet<Release>,Error> {
+    let repo_path = get_repo_path();
+
+    if !repo_path.exists() {
+        update_local_repo(true)?;
+    }
+
+    let mut file = File::open(&repo_path)?;
+    let mut buffer : String = String::new();
+    file.read_to_string(&mut buffer)?;
+
+    let export : ReleaseExporter = toml::from_str(&buffer)?;
+    Ok(export.to_release())
 }
 
 fn get_repo_path() -> PathBuf {

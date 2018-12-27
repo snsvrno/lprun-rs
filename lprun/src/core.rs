@@ -11,7 +11,7 @@ pub fn run<P : AsRef<Path>>(plat : &Platform, ver : &Version, package_path : Opt
 
     let exe_path = PathBuf::from(binary::build_path(plat,ver)?);
     if !exe_path.exists() {
-        info!("love-{}-{} not found, attempting to install.",plat,ver);
+        info!("love {} {} not found, attempting to install.",plat,ver);
         binary::install(plat,ver)?;
     }
 

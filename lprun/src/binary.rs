@@ -8,7 +8,7 @@ use failure::Error;
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::fs::create_dir_all;
+use std::fs::{create_dir_all,remove_file};
 
 use repo;
 
@@ -45,8 +45,15 @@ pub fn install(platform : &Platform, version : &Version) -> Result<PathBuf,Error
 
                 let link = repo::get_version_link(platform,version)?;
                 info!("Installing from '{}'",link);
-                let (download_path,_size) = download_lp::download(&link, install_path.display().to_string())?;
-                let exe_path = archive_lp::extract_root_to(&download_path, &install_path.display().to_string())?;
+                let (download_file_name,_size) = download_lp::download(&link, install_path.display().to_string())?;
+                let download_path = {
+                    let mut path = PathBuf::from(install_path);
+                    path.push(download_file_name);
+                    path
+                };
+                let exe_path = archive_lp::extract_root_to(&download_path.display().to_string(), &install_path.display().to_string())?;
+
+                remove_file(download_path)?;
 
                 Ok(exe_path)
             } else {
