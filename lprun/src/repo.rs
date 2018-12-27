@@ -79,25 +79,18 @@ pub fn update_local_repo(forced : bool) -> Result<(),Error> {
 
 pub fn list() -> Result<(),Error> { 
     let releases = get_installed()?;
+    create_table(releases, None);
+    Ok(())
+}
 
-    let mut headers : prettytable::Row = prettytable::Row::empty();
+pub fn list_available() -> Result<(),Error> {
+    //! get the list of all remote LOVE binaries that can
+    //! be used, will display all platforms organized.
+    
+    let releases = load_local_repo()?;
+    let locally_installed = get_installed()?;
 
-    let mut table = prettytable::Table::new();
-    table.set_format(*prettytable::format::consts::FORMAT_CLEAN);
-
-    for platform_in_question in Platform::iterator() {
-        if let Some(mut release_set) = get_matching!(releases,platform == platform_in_question.clone()) {
-            headers.add_cell(prettytable::Cell::from(platform_in_question));
-            let mut column : Vec<prettytable::Cell> = Vec::new();
-            release_set.sort();
-            for release in release_set {
-                column.push(prettytable::Cell::new(&release.version.to_string()));
-            }
-            table.add_column(column);
-        }
-    }
-    table.set_titles(headers);
-    table.printstd();
+    create_table(releases, Some(locally_installed));
 
     Ok(())
 }
@@ -135,32 +128,38 @@ fn get_installed() -> Result<HashSet<Release>,Error> {
     Ok(releases)
 }
 
-pub fn list_available() -> Result<(),Error> {
-    //! get the list of all remote LOVE binaries that can
-    //! be used, will display all platforms organized.
+fn create_table(main_list : HashSet<Release>, highlight_list : Option<HashSet<Release>>) {
     
-    let releases = load_local_repo()?;
-
     let mut headers : prettytable::Row = prettytable::Row::empty();
 
     let mut table = prettytable::Table::new();
     table.set_format(*prettytable::format::consts::FORMAT_CLEAN);
 
     for platform_in_question in Platform::iterator() {
-        if let Some(mut release_set) = get_matching!(releases,platform == platform_in_question.clone()) {
-            headers.add_cell(prettytable::Cell::from(platform_in_question));
+        if let Some(mut release_set) = get_matching!(main_list,platform == platform_in_question.clone()) {
+            headers.add_cell(prettytable::Cell::from(platform_in_question).style_spec("Fwubi"));
             let mut column : Vec<prettytable::Cell> = Vec::new();
             release_set.sort();
+            release_set.reverse();
             for release in release_set {
-                column.push(prettytable::Cell::new(&release.version.to_string()));
+                let cell = {
+                    let cell = prettytable::Cell::new(&release.version.to_string());
+                    if let Some(ref list_2) = highlight_list {
+                        match get_matching!(list_2,platform == platform_in_question.clone(),version == release.version.clone()).is_some() {
+                            true => cell.style_spec("Fgb"),
+                            false => cell,
+                        }
+                    } else {
+                        cell
+                    }
+                };
+                column.push(cell);
             }
             table.add_column(column);
         }
     }
     table.set_titles(headers);
     table.printstd();
-
-    Ok(())
 }
 
 fn load_local_repo() -> Result<HashSet<Release>,Error> {
@@ -217,7 +216,7 @@ fn get_repo_links() -> Vec<String> {
     links
 }
 
-fn process_bitbucket(mut repo_obj : &mut HashSet<Release>, url : &str) -> Result<Option<String>,Error> {
+fn process_bitbucket(repo_obj : &mut HashSet<Release>, url : &str) -> Result<Option<String>,Error> {
     if !url.contains("bitbucket") { return Ok(None); }
 
     let mut resp = reqwest::get(url)?;
