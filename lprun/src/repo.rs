@@ -24,7 +24,7 @@ static VALID_EXT_LINUX : [&str;3] = [ "appimage","tar.gz","tar.xz" ];
 static VALID_EXT_WINDOWS : [&str;1] = [ "zip" ];
 static VALID_EXT_MAC : [&str;2] = [ "zip","dmg" ];
 
-static REGEX_VERSION_MATCH : &str = r"(\d+[-|.|_]\d+[-|.|_]\d+)";
+static REGEX_VERSION_MATCH : &str = r"(\d+[-|.|_]\d+[[-|.|_]\d+]*)";
 static REPO_FILE : &str = "love_repo.toml";
 static DEFAULT_LINKS : [&str;2] = [
   "https://api.bitbucket.org/2.0/repositories/rude/love/downloads",
@@ -226,11 +226,13 @@ fn process_bitbucket(repo_obj : &mut HashSet<Release>, url : &str) -> Result<Opt
     if let Some(json_releases) = json["values"].as_array() {
         let re_version = Regex::new(REGEX_VERSION_MATCH).unwrap();
         for download in json_releases {
+            println!("Download.name: {}",download["name"]);
             if let Some(version_cap) = re_version.captures(download["name"].as_str().unwrap()) {
                 match Version::from_str(version_cap.get(1).unwrap().as_str()) {
                     None => { error!("Error parsing version {:?}",version_cap.get(1).unwrap()); },
                     Some(version) => {
                         let link = download["links"]["self"]["href"].as_str().unwrap();
+                        println!("Link: {}",link);
 
                         // resolves the platform, does it this way because there is some nuance it it,
                         // because some of the files don't have platforms, but the extension (like AppImage)
