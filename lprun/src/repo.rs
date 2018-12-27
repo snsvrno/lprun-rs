@@ -6,7 +6,7 @@ use lpsettings;
 
 use std::path::PathBuf;
 use std::collections::HashSet;
-use std::fs::File;
+use std::fs::{File,read_dir};
 use std::io::{Write,Read};
 
 use reqwest;
@@ -78,7 +78,61 @@ pub fn update_local_repo(forced : bool) -> Result<(),Error> {
 }
 
 pub fn list() -> Result<(),Error> { 
-    Err(format_err!("Not implemented"))
+    let releases = get_installed()?;
+
+    let mut headers : prettytable::Row = prettytable::Row::empty();
+
+    let mut table = prettytable::Table::new();
+    table.set_format(*prettytable::format::consts::FORMAT_CLEAN);
+
+    for platform_in_question in Platform::iterator() {
+        if let Some(mut release_set) = get_matching!(releases,platform == platform_in_question.clone()) {
+            headers.add_cell(prettytable::Cell::from(platform_in_question));
+            let mut column : Vec<prettytable::Cell> = Vec::new();
+            release_set.sort();
+            for release in release_set {
+                column.push(prettytable::Cell::new(&release.version.to_string()));
+            }
+            table.add_column(column);
+        }
+    }
+    table.set_titles(headers);
+    table.printstd();
+
+    Ok(())
+}
+
+fn get_installed() -> Result<HashSet<Release>,Error> {
+    let mut releases : HashSet<Release> = HashSet::new();
+    
+    let base_path = {
+        let mut path = lpsettings::get_folder();
+        let binary_path = lpsettings::get_value_or("run.binaries-root",&"bin".to_string());
+        path.push(binary_path.to_string());
+        path
+    };
+
+    for entry in read_dir(base_path)? {
+        let entry = entry?;
+        if entry.path().is_dir() {
+            let platform : Platform = Platform::new(entry.path().file_name().unwrap().to_str().unwrap());
+            if platform != Platform::None {
+                for version_entry in read_dir(entry.path())? {
+                    let version_entry = version_entry?;
+                    let version = Version::from_str(version_entry.path().file_name().unwrap().to_str().unwrap());
+                    if let Some(version)  = version {
+                        releases.insert(Release{
+                            platform : platform.clone(),
+                            version : version,
+                            link : "".to_string()
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(releases)
 }
 
 pub fn list_available() -> Result<(),Error> {
@@ -88,7 +142,10 @@ pub fn list_available() -> Result<(),Error> {
     let releases = load_local_repo()?;
 
     let mut headers : prettytable::Row = prettytable::Row::empty();
+
     let mut table = prettytable::Table::new();
+    table.set_format(*prettytable::format::consts::FORMAT_CLEAN);
+
     for platform_in_question in Platform::iterator() {
         if let Some(mut release_set) = get_matching!(releases,platform == platform_in_question.clone()) {
             headers.add_cell(prettytable::Cell::from(platform_in_question));

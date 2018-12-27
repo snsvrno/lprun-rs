@@ -21,6 +21,6 @@ smart-hash-derive = "0.1"
 version-lp = "0.2"
 platform-lp = "0.2"
 download-lp = "0.2"
-archive-lp = "0.2"
+archive-lp = { version = "0.2.3", features = ["indicate"] }
 lpsettings = "0.2"
 love = "0.2"
