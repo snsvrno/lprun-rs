@@ -6,7 +6,7 @@ authors = ["snsvrno <snsvrno@tuta.io>"]
 license = "MIT"
 description = "a library for running and managing LOVE binaries"
 repository = "https://github.com/snsvrno/lprun-rs"
-readme = "README.md"
+readme = "../README.md"
 
 keywords = ["lovepack","love2D","love"]
 categories = []
