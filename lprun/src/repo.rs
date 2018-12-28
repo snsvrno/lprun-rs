@@ -6,7 +6,7 @@ use lpsettings;
 
 use std::path::PathBuf;
 use std::collections::HashSet;
-use std::fs::{File,read_dir};
+use std::fs::File;
 use std::io::{Write,Read};
 
 use reqwest;
@@ -16,6 +16,8 @@ use toml;
 
 use structs::release::{ Release, ReleaseExporter };
 use smart_hash::traits::SmartHashSet;
+
+#[cfg(feature = "cli")]
 use prettytable;
 
 use binary;
@@ -79,12 +81,14 @@ pub fn update_local_repo(forced : bool) -> Result<(),Error> {
     Ok(())
 }
 
+#[cfg(feature = "cli")]
 pub fn list() -> Result<(),Error> { 
     let releases = binary::get_installed()?;
     create_table(releases, None);
     Ok(())
 }
 
+#[cfg(feature = "cli")]
 pub fn list_available() -> Result<(),Error> {
     //! get the list of all remote LOVE binaries that can
     //! be used, will display all platforms organized.
@@ -97,6 +101,7 @@ pub fn list_available() -> Result<(),Error> {
     Ok(())
 }
 
+#[cfg(feature = "cli")]
 fn create_table(main_list : HashSet<Release>, highlight_list : Option<HashSet<Release>>) {
     
     let mut headers : prettytable::Row = prettytable::Row::empty();

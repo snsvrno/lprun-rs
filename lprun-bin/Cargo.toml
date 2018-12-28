@@ -9,4 +9,4 @@ log = "0"
 pretty_env_logger = "0.2"
 updater-lp = "0.3"
 
-lprun = { version = "0.2", path = "../lprun" }
+lprun = { version = "0.2", path = "../lprun", features = ["cli"] }

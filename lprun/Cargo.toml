@@ -4,23 +4,34 @@ version = "0.2.0"
 authors = ["snsvrno <snsvrno@tuta.io>"]
 
 [dependencies]
-clap = "2.32"
-ansi_term = "0.11"
+
+# good signatures, logging
 failure = "0.1"
 log = "0.4"
-reqwest = "0.9"
-serde_json = "1.0"
-toml = "0.4"
-regex = "1.1"
-serde_derive = "1.0"
-serde = "1.0"
 
-prettytable-rs = "0.8"
+# for cli interface
+clap = { version = "2.32", optional = true }
+prettytable-rs = { version = "0.8", optional = true }
+
+# for getting releases repo
+reqwest = "0.9"      # downloading JSON
+serde_json = "1.0"   # parsing the JSON
+toml = "0.4"         # saving the parsed releases to local file
+regex = "1.1"        # for parsing version information from releases
+serde_derive = "1.0" # for saving release to local file
+serde = "1.0"        # for saving release to local file
+
+# for HashSet lookups
 smart-hash = "0.1"
 smart-hash-derive = "0.1"
+
+# lovepack libraries
 version-lp = "0.2"
 platform-lp = "0.2"
 download-lp = "0.2"
 archive-lp = { version = "0.2.3", features = ["indicate"] }
 lpsettings = "0.2"
 love = "0.2"
+
+[features]
+cli = ["clap", "prettytable-rs"]

@@ -1,5 +1,8 @@
+// for interfacing
+#[cfg(feature = "cli")]
 extern crate clap;
 
+// lovepack tooling
 extern crate love;
 extern crate lpsettings;
 extern crate platform_lp;
@@ -7,6 +10,7 @@ extern crate version_lp;
 extern crate archive_lp;
 extern crate download_lp;
 
+// for retrieveing release information and saving it
 extern crate reqwest;
 extern crate serde_json;
 extern crate regex;
@@ -14,13 +18,17 @@ extern crate toml;
 #[macro_use] extern crate serde_derive;
 extern crate serde;
 
+#[cfg(feature = "cli")]
 extern crate prettytable;
+
 #[macro_use] extern crate smart_hash;
 #[macro_use] extern crate smart_hash_derive;
 
+// for creating good functions
 #[macro_use] extern crate log;
 #[macro_use] extern crate failure;
 
+#[cfg(feature = "cli")]
 pub mod interface;
 
 mod core;
