@@ -3,6 +3,14 @@ name = "lprun"
 version = "0.2.0"
 authors = ["snsvrno <snsvrno@tuta.io>"]
 
+license = "MIT"
+description = "a library for running and managing LOVE binaries"
+repository = "https://github.com/snsvrno/lprun-rs"
+readme = "README.md"
+
+keywords = ["lovepack","love2D","love"]
+categories = []
+
 [dependencies]
 
 # good signatures, logging
