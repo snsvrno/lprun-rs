@@ -23,9 +23,7 @@ extern crate serde;
 #[cfg(feature = "cli")]
 extern crate prettytable;
 
-#[cfg(feature = "cli")]
 #[macro_use] extern crate smart_hash;
-#[cfg(feature = "cli")]
 #[macro_use] extern crate smart_hash_derive;
 
 // for creating good functions

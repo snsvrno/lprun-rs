@@ -20,9 +20,10 @@ log = "0.4"
 # for cli interface
 clap = { version = "2.32", optional = true }
 prettytable-rs = { version = "0.8", optional = true }
+
 # for HashSet lookups. mainly for CLI output
-smart-hash = { version = "0.1", optional = true }
-smart-hash-derive = { version = "0.1", optional = true }
+smart-hash = "0.1"
+smart-hash-derive = "0.1"
 
 # for getting releases repo
 reqwest = "0.9"      # downloading JSON
@@ -42,4 +43,4 @@ lpsettings = "0.2"
 love = "0.2"
 
 [features]
-cli = [ "clap", "prettytable-rs", "smart-hash", "smart-hash-derive" ]
+cli = [ "clap", "prettytable-rs" ]

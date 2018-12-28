@@ -15,6 +15,7 @@ use regex::Regex;
 use toml;
 
 use structs::release::{ Release, ReleaseExporter };
+
 use smart_hash::traits::SmartHashSet;
 
 #[cfg(feature = "cli")]
