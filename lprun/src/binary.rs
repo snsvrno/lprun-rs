@@ -8,7 +8,11 @@ use failure::Error;
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::fs::{create_dir_all,remove_file};
+use std::fs::{create_dir_all,remove_file,read_dir};
+
+use std::collections::HashSet;
+
+use structs::release::Release;
 
 use repo;
 
@@ -77,4 +81,37 @@ pub fn run<P:AsRef<Path>>(binary_path : P, package_path : Option<PathBuf>) -> Re
         Err(error) => Err(format_err!("{}",error)),
         Ok(_child) => Ok(()) // maybe use this in the future?
     }
+}
+
+pub fn get_installed() -> Result<HashSet<Release>,Error> {
+    let mut releases : HashSet<Release> = HashSet::new();
+    
+    let base_path = {
+        let mut path = lpsettings::get_folder();
+        let binary_path = lpsettings::get_value_or("run.binaries-root",&"bin".to_string());
+        path.push(binary_path.to_string());
+        path
+    };
+
+    for entry in read_dir(base_path)? {
+        let entry = entry?;
+        if entry.path().is_dir() {
+            let platform : Platform = Platform::new(entry.path().file_name().unwrap().to_str().unwrap());
+            if platform != Platform::None {
+                for version_entry in read_dir(entry.path())? {
+                    let version_entry = version_entry?;
+                    let version = Version::from_str(version_entry.path().file_name().unwrap().to_str().unwrap());
+                    if let Some(version)  = version {
+                        releases.insert(Release{
+                            platform : platform.clone(),
+                            version : version,
+                            link : "".to_string()
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(releases)
 }

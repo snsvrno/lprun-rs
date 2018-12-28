@@ -3,7 +3,6 @@ extern crate clap;
 extern crate lprun;
 
 use lprun::interface;
-use std::env;
 
 fn main() {
     // builds the app
