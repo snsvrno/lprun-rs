@@ -8,7 +8,7 @@ use failure::Error;
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::fs::{create_dir_all,remove_file};
+use std::fs::{create_dir_all,remove_file,read_dir};
 
 use std::collections::HashSet;
 use structs::release::Release;
