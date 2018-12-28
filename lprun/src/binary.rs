@@ -9,15 +9,32 @@ use failure::Error;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::fs::{create_dir_all,remove_file,read_dir};
-
 use std::collections::HashSet;
 
 use structs::release::Release;
-
 use repo;
 
 pub fn build_path(platform : &Platform, version : &Version) -> Result<PathBuf,Error> {
     //! generates the path to the binary, used for executing.
+    //! 
+    //! ```rust,ignore
+    //! # // ignoring this because this isn't a public interface
+    //! # 
+    //! # extern crate platform_lp; use platform_lp::Platform;
+    //! # extern crate version_lp; use version_lp::Version;
+    //! # extern crate lprun; use lprun::binary;
+    //! # use std::path::PathBuf;
+    //! # 
+    //! # 
+    //! let path = binary::build_path(Platform::Nix64, Version::new(&[0,10,2]));
+    //! 
+    //! # let path = Ok(PathBuf::from("~/.lovepack/bin/nix64/0.10.2/love"));
+    //! 
+    //! match path {
+    //!     Err(_) => assert!(false),
+    //!     Ok(path) => assert_eq!(path,PathBuf::from("~/.lovepack/bin/nix64/0.10.2/love"))
+    //! }
+    //! ```
 
     let mut path = lpsettings::get_folder();
     let binary_path = lpsettings::get_value_or("run.binaries-root",&"bin".to_string());
@@ -38,6 +55,9 @@ pub fn build_path(platform : &Platform, version : &Version) -> Result<PathBuf,Er
 
 pub fn install(platform : &Platform, version : &Version) -> Result<PathBuf,Error> {
     //! doesn't check if it already exists, you should do this before.
+    //! 
+    //! will install the desired version in the local repo stop. if the folder already exists
+    //! then it assumes it is already installed and returns that path.
     
     let install_exe = build_path(platform,version)?;
     match install_exe.parent() {
@@ -71,6 +91,9 @@ pub fn install(platform : &Platform, version : &Version) -> Result<PathBuf,Error
 
 pub fn run<P:AsRef<Path>>(binary_path : P, package_path : Option<PathBuf>) -> Result<(),Error> {
     //! doesn't check if it exists, you should check before using this.
+    //! 
+    //! direct run function. will try and run the app and error if it can't it will not
+    //! attempt to install the binary, use core::run instead if you want that functionality.
     
     let path = PathBuf::from(binary_path.as_ref());
     
@@ -83,7 +106,12 @@ pub fn run<P:AsRef<Path>>(binary_path : P, package_path : Option<PathBuf>) -> Re
     }
 }
 
+#[cfg(feature = "cli")]
 pub fn get_installed() -> Result<HashSet<Release>,Error> {
+    //! returns a HashSet of all installed releases.
+    //! 
+    //! primarily for cli output
+
     let mut releases : HashSet<Release> = HashSet::new();
     
     let base_path = {

@@ -12,6 +12,9 @@ log = "0.4"
 # for cli interface
 clap = { version = "2.32", optional = true }
 prettytable-rs = { version = "0.8", optional = true }
+# for HashSet lookups. mainly for CLI output
+smart-hash = { version = "0.1", optional = true }
+smart-hash-derive = { version = "0.1", optional = true }
 
 # for getting releases repo
 reqwest = "0.9"      # downloading JSON
@@ -21,9 +24,6 @@ regex = "1.1"        # for parsing version information from releases
 serde_derive = "1.0" # for saving release to local file
 serde = "1.0"        # for saving release to local file
 
-# for HashSet lookups
-smart-hash = "0.1"
-smart-hash-derive = "0.1"
 
 # lovepack libraries
 version-lp = "0.2"
@@ -34,4 +34,4 @@ lpsettings = "0.2"
 love = "0.2"
 
 [features]
-cli = ["clap", "prettytable-rs"]
+cli = [ "clap", "prettytable-rs", "smart-hash", "smart-hash-derive" ]

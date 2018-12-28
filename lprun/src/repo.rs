@@ -36,6 +36,8 @@ static DEFAULT_LINKS : [&str;2] = [
 ];
 
 pub fn get_version_link(platform : &Platform, version : &Version) -> Result<String,Error> {
+    //! checks the local repo file for the download link for the requested version
+    
     let releases : HashSet<Release> = load_local_repo()?;
 
     match get_matching!(releases,version == version.clone(), platform == platform.clone()) {
@@ -45,6 +47,11 @@ pub fn get_version_link(platform : &Platform, version : &Version) -> Result<Stri
 }
 
 pub fn update_local_repo(forced : bool) -> Result<(),Error> {
+    //! queries the repo links and updates the local repo file
+    //! 
+    //! will only run based on the frequency in lpsettings, or if 
+    //! the `forced` bool is used.
+    
     if lpsettings::update::check_if_should_update("lprun.repo") || forced {
         let repo_path = get_repo_path();
         let mut links = get_repo_links();
@@ -67,7 +74,6 @@ pub fn update_local_repo(forced : bool) -> Result<(),Error> {
 
         let mut file = File::create(&repo_path)?;
 
-
         {
             let export = ReleaseExporter::from_release(releases);
             let toml_string = toml::to_string(&export)?;
@@ -83,6 +89,8 @@ pub fn update_local_repo(forced : bool) -> Result<(),Error> {
 
 #[cfg(feature = "cli")]
 pub fn list() -> Result<(),Error> { 
+    //! creates a table of all the installed LOVE releases, cli feature
+    
     let releases = binary::get_installed()?;
     create_table(releases, None);
     Ok(())
@@ -90,8 +98,9 @@ pub fn list() -> Result<(),Error> {
 
 #[cfg(feature = "cli")]
 pub fn list_available() -> Result<(),Error> {
-    //! get the list of all remote LOVE binaries that can
-    //! be used, will display all platforms organized.
+    //! creates a table of all LOVE releases, cli feature
+    //! 
+    //! will display all platforms organized.
     
     let releases = load_local_repo()?;
     let locally_installed = binary::get_installed()?;
@@ -103,6 +112,11 @@ pub fn list_available() -> Result<(),Error> {
 
 #[cfg(feature = "cli")]
 fn create_table(main_list : HashSet<Release>, highlight_list : Option<HashSet<Release>>) {
+    //! helper function to create the display table, cli feature
+    //! 
+    //! main_list is the primary list of times, sorted in columns by platform. the 
+    //! hight_list is a list of times to highlight in the main_list (such as installed
+    //! releases / binaries)
     
     let mut headers : prettytable::Row = prettytable::Row::empty();
 
@@ -137,6 +151,11 @@ fn create_table(main_list : HashSet<Release>, highlight_list : Option<HashSet<Re
 }
 
 fn load_local_repo() -> Result<HashSet<Release>,Error> {
+    //! loads the repo file into memory, as a HashSet of Release
+    //! 
+    //! Uses the interim data structure `ReleaseExporter` because of
+    //! an issue with directly saving and reading the HashSet
+    
     let repo_path = get_repo_path();
 
     if !repo_path.exists() {
@@ -191,6 +210,8 @@ fn get_repo_links() -> Vec<String> {
 }
 
 fn process_bitbucket(repo_obj : &mut HashSet<Release>, url : &str) -> Result<Option<String>,Error> {
+    //! gets links from bitbucket repos
+    
     if !url.contains("bitbucket") { return Ok(None); }
 
     let mut resp = reqwest::get(url)?;

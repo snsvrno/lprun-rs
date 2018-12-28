@@ -8,6 +8,9 @@ use binary;
 
 pub fn run<P : AsRef<Path>>(plat : &Platform, ver : &Version, package_path : Option<P>) -> Result<(),Error> {
     //! runs love based on a ***platform*** and a ***version***
+    //! 
+    //! will attempt to install a version of doesn't exist locally. if that initial install
+    //! fails then run will fail.
 
     let exe_path = PathBuf::from(binary::build_path(plat,ver)?);
     if !exe_path.exists() {

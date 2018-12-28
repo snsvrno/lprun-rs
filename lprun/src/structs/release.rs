@@ -1,10 +1,20 @@
 use platform_lp::Platform;
 use version_lp::Version;
-use std::fmt;
 
+use std::fmt;
 use std::collections::HashSet;
 
+/// Internal struct to describe a LOVE release.
+#[cfg(feature = "cli")]
 #[derive(Hash,Eq,PartialEq,Serialize,Deserialize,SmartHash)]
+pub struct Release {
+    pub version : Version,
+    pub platform: Platform,
+    pub link : String,
+}
+
+#[cfg(not(feature = "cli"))]
+#[derive(Hash,Eq,PartialEq,Serialize,Deserialize)]
 pub struct Release {
     pub version : Version,
     pub platform: Platform,

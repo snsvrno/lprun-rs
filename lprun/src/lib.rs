@@ -1,3 +1,5 @@
+/// lovepack library for managing different distributions of LOVE
+
 // for interfacing
 #[cfg(feature = "cli")]
 extern crate clap;
@@ -21,20 +23,24 @@ extern crate serde;
 #[cfg(feature = "cli")]
 extern crate prettytable;
 
+#[cfg(feature = "cli")]
 #[macro_use] extern crate smart_hash;
+#[cfg(feature = "cli")]
 #[macro_use] extern crate smart_hash_derive;
 
 // for creating good functions
 #[macro_use] extern crate log;
 #[macro_use] extern crate failure;
 
+// the public interface for CLI apps (if feature is enabled)
 #[cfg(feature = "cli")]
 pub mod interface;
 
 mod core;
-pub use core::run;
-
 mod binary;
 mod repo;
-
 mod structs;
+
+// the public interface for the library
+pub use core::run as run;
+pub use binary::install as install;

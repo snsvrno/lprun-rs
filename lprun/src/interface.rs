@@ -73,7 +73,11 @@ pub fn app() -> clap::App<'static,'static> {
     //!
     //! Using ***lprun*** by itself.
     //!
-    //! ```rust
+    //! ```rust,ignore
+    //! # // running this as a doc-test will run love, so ignored.
+    //! # extern crate clap;
+    //! # extern crate lprun;
+    //! # use lprun::interface;
     //! let app = interface::app()
     //!     .get_matches();
     //!
@@ -85,8 +89,12 @@ pub fn app() -> clap::App<'static,'static> {
     //!
     //! Using ***lprun*** as part of another app.
     //!
-    //! ```rust
-    //! let app = clap::App("newapp")
+    //! ```rust,ignore
+    //! # // running this as a doc-test will run love, so ignored.
+    //! # extern crate clap;
+    //! # extern crate lprun;
+    //! # use lprun::interface;
+    //! let app = clap::App::new("otherapp")
     //!     .subcommand(interface::app().name("run"))
     //!     .get_matches();
     //!
